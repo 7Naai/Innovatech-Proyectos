@@ -27,4 +27,7 @@ public class Asignacion {
 
     @Column(name = "fecha_asignacion")
     private LocalDate fechaAsignacion;
+
+    @Column(name = "horas_aproximadas")
+    private Integer horasAproximadas;
 }
