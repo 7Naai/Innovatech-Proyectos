@@ -41,7 +41,7 @@ public class AsignacionService {
             existente.setIdUsuario(asignacion.getIdUsuario());
             existente.setFechaAsignacion(asignacion.getFechaAsignacion());
 
-            // ✅ NUEVO CAMPO
+
             existente.setHorasAproximadas(asignacion.getHorasAproximadas());
 
             if (asignacion.getTarea() != null) {
@@ -68,7 +68,7 @@ public class AsignacionService {
         return repository.findByTarea_IdTarea(idTarea);
     }
 
-    // ✅ NUEVO MÉTODO
+
     public List<Asignacion> listarPorHoras(Integer horas) {
         return repository.findByHorasAproximadas(horas);
     }
