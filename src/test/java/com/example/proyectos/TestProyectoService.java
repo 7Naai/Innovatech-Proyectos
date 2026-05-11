@@ -1,11 +1,15 @@
 package com.example.proyectos;
 
 import com.example.proyectos.model.Proyecto;
+import com.example.proyectos.model.ResumenProyecto;
 import com.example.proyectos.repository.ProyectoRepository;
+import com.example.proyectos.repository.TareaRepository;
 import com.example.proyectos.service.ProyectoService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,6 +27,9 @@ public class TestProyectoService {
     @Mock
     private ProyectoRepository repository;
 
+    @Mock
+    private TareaRepository tareaRepository;
+
     @InjectMocks
     private ProyectoService service;
 
@@ -30,6 +37,7 @@ public class TestProyectoService {
 
     @BeforeEach
     void setUp() {
+
         proyecto = Proyecto.builder()
                 .idProyecto(1L)
                 .nombre("Proyecto Test")
@@ -43,16 +51,20 @@ public class TestProyectoService {
 
     @Test
     void listarProyectos() {
+
         when(repository.findAll()).thenReturn(List.of(proyecto));
 
         List<Proyecto> resultado = service.listarProyectos();
 
         assertEquals(1, resultado.size());
+        assertEquals("Proyecto Test", resultado.get(0).getNombre());
     }
 
     @Test
     void obtenerProyectoPorId() {
-        when(repository.findById(1L)).thenReturn(Optional.of(proyecto));
+
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(proyecto));
 
         Proyecto resultado = service.obtenerProyectoPorId(1L);
 
@@ -62,16 +74,20 @@ public class TestProyectoService {
 
     @Test
     void crearProyecto() {
-        when(repository.save(proyecto)).thenReturn(proyecto);
+
+        when(repository.save(proyecto))
+                .thenReturn(proyecto);
 
         Proyecto resultado = service.crearProyecto(proyecto);
 
         assertNotNull(resultado);
+
         verify(repository).save(proyecto);
     }
 
     @Test
     void actualizarProyecto() {
+
         Proyecto nuevo = Proyecto.builder()
                 .nombre("Nuevo")
                 .descripcion("Nueva")
@@ -81,32 +97,83 @@ public class TestProyectoService {
                 .fecha_fin(LocalDate.now())
                 .build();
 
-        when(repository.findById(1L)).thenReturn(Optional.of(proyecto));
-        when(repository.save(any(Proyecto.class))).thenReturn(proyecto);
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(proyecto));
 
-        Proyecto resultado = service.actualizarProyecto(1L, nuevo);
+        when(repository.save(any(Proyecto.class)))
+                .thenReturn(proyecto);
+
+        Proyecto resultado =
+                service.actualizarProyecto(1L, nuevo);
 
         assertNotNull(resultado);
+
         verify(repository).save(any(Proyecto.class));
     }
 
     @Test
     void actualizarEstado() {
-        when(repository.findById(1L)).thenReturn(Optional.of(proyecto));
-        when(repository.save(any(Proyecto.class))).thenReturn(proyecto);
 
-        Proyecto resultado = service.actualizarEstado(1L, "Completado");
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(proyecto));
+
+        when(repository.save(any(Proyecto.class)))
+                .thenReturn(proyecto);
+
+        Proyecto resultado =
+                service.actualizarEstado(1L, "COMPLETADO");
 
         assertNotNull(resultado);
+
         verify(repository).save(any(Proyecto.class));
     }
 
     @Test
     void eliminarProyecto() {
+
         doNothing().when(repository).deleteById(1L);
 
         service.eliminarProyecto(1L);
 
         verify(repository).deleteById(1L);
+    }
+
+    @Test
+    void obtenerResumenTareas() {
+
+        when(repository.findAll())
+                .thenReturn(List.of(proyecto));
+
+        when(tareaRepository.countByProyecto_IdProyecto(1L))
+                .thenReturn(10L);
+
+        when(tareaRepository.countByProyecto_IdProyectoAndEstado(
+                1L,
+                "COMPLETADA"
+        )).thenReturn(7L);
+
+        List<ResumenProyecto> resultado =
+                service.obtenerResumenTareas();
+
+        assertNotNull(resultado);
+
+        assertEquals(1, resultado.size());
+
+        ResumenProyecto resumen = resultado.get(0);
+
+        assertEquals(1L, resumen.getId_proyecto());
+        assertEquals(7L, resumen.getTareas_completadas());
+        assertEquals(10L, resumen.getTareas_totales());
+
+        verify(repository).findAll();
+
+        verify(tareaRepository)
+                .countByProyecto_IdProyecto(1L);
+
+        verify(tareaRepository)
+                .countByProyecto_IdProyectoAndEstado(
+                        1L,
+                        "COMPLETADA"
+                );
     }
 }
