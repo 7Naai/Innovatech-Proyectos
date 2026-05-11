@@ -8,4 +8,8 @@ import java.util.List;
 public interface TareaRepository extends JpaRepository<Tarea, Long> {
 
     List<Tarea> findByProyecto_IdProyecto(Long idProyecto);
+
+    long countByProyecto_IdProyecto(Long idProyecto);
+
+    long countByProyecto_IdProyectoAndEstado(Long idProyecto, String estado);
 }

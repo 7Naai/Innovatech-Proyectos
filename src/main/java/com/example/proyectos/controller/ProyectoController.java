@@ -1,6 +1,7 @@
 package com.example.proyectos.controller;
 
 import com.example.proyectos.model.Proyecto;
+import com.example.proyectos.model.ResumenProyecto;
 import com.example.proyectos.service.ProyectoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +45,11 @@ public class ProyectoController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.eliminarProyecto(id);
+    }
+    
+    @GetMapping("/resumen-tareas")
+
+    public List<ResumenProyecto> getResumen() {
+        return service.obtenerResumenTareas();
     }
 }
