@@ -6,7 +6,6 @@ import com.example.proyectos.repository.ProyectoRepository;
 import com.example.proyectos.repository.TareaRepository;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,11 +31,9 @@ public class ProyectoService {
     }
 
     public Proyecto actualizarProyecto(Long id, Proyecto proyecto) {
-
         Proyecto existente = repository.findById(id).orElse(null);
 
         if (existente != null) {
-
             existente.setNombre(proyecto.getNombre());
             existente.setDescripcion(proyecto.getDescripcion());
             existente.setEstado(proyecto.getEstado());
@@ -51,13 +48,10 @@ public class ProyectoService {
     }
 
     public Proyecto actualizarEstado(Long id, String estado) {
-
         Proyecto proyecto = repository.findById(id).orElse(null);
 
         if (proyecto != null) {
-
             proyecto.setEstado(estado);
-
             return repository.save(proyecto);
         }
 
@@ -68,32 +62,30 @@ public class ProyectoService {
         repository.deleteById(id);
     }
 
-    // NUEVO MÉTODO
-
+    /**
+     * MÉTODO OPTIMIZADO Y CORREGIDO DEFINITIVO
+     * Cuenta las tareas basándose en el estado real de la base de datos ("FINALIZADO").
+     * Utiliza IgnoreCase para prevenir fallos por diferencias de escritura.
+     */
     public List<ResumenProyecto> obtenerResumenTareas() {
-
         List<Proyecto> proyectos = repository.findAll();
 
         return proyectos.stream().map(p -> {
+            long totales = tareaRepository.countByProyecto_IdProyecto(
+                    p.getIdProyecto()
+            );
 
-            long totales =
-                    tareaRepository.countByProyecto_IdProyecto(
-                            p.getIdProyecto()
-                    );
-
-            long completadas =
-                    tareaRepository.countByProyecto_IdProyectoAndEstado(
-                            p.getIdProyecto(),
-                            "COMPLETADA"
-                    );
+            // CORRECCIÓN DEFINITIVA: Buscamos "FINALIZADO" ignorando mayúsculas/minúsculas
+            long completadas = tareaRepository.countByProyecto_IdProyectoAndEstadoIgnoreCase(
+                    p.getIdProyecto(),
+                    "FINALIZADO"
+            );
 
             return new ResumenProyecto(
                     p.getIdProyecto(),
                     completadas,
                     totales
             );
-
         }).collect(Collectors.toList());
     }
-
 }
