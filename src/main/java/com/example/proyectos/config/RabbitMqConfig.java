@@ -11,71 +11,86 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @EnableRabbit
 @Configuration
-
+@Profile("!test")
 public class RabbitMqConfig {
-  // Cola de Proyectos (publica)
 
-  public static final String QUEUE_PROYECTOS = "proyectos.queue";
+    // Cola de Proyectos (publica)
 
-  public static final String EXCHANGE_PROYECTOS = "proyectos.exchange";
+    public static final String QUEUE_PROYECTOS = "proyectos.queue";
 
-  public static final String ROUTING_KEY_PROYECTOS = "proyectos.routingKey";
+    public static final String EXCHANGE_PROYECTOS = "proyectos.exchange";
 
-  // Cola de Usuarios (escucha)
+    public static final String ROUTING_KEY_PROYECTOS = "proyectos.routingKey";
 
-  public static final String QUEUE_USUARIOS = "usuarios.queue";
+    // Cola de Usuarios (escucha)
 
-  public static final String EXCHANGE_USUARIOS = "usuarios.exchange";
+    public static final String QUEUE_USUARIOS = "usuarios.queue";
 
-  public static final String ROUTING_KEY_USUARIOS = "usuarios.routingKey";
+    public static final String EXCHANGE_USUARIOS = "usuarios.exchange";
 
-  @Bean
-  public Queue queue() {
-    return new Queue(QUEUE_PROYECTOS, true);
-  }
+    public static final String ROUTING_KEY_USUARIOS = "usuarios.routingKey";
 
-  @Bean
-  public Queue queueUsuarios() {
-    return new Queue(QUEUE_USUARIOS, true);
-  }
+    @Bean
+    public Queue queue() {
+        return new Queue(QUEUE_PROYECTOS, true);
+    }
 
-  @Bean
-  public TopicExchange exchange() {
-    return new TopicExchange(EXCHANGE_PROYECTOS);
-  }
+    @Bean
+    public Queue queueUsuarios() {
+        return new Queue(QUEUE_USUARIOS, true);
+    }
 
-  @Bean
-  public TopicExchange exchangeUsuarios() {
-    return new TopicExchange(EXCHANGE_USUARIOS);
-  }
+    @Bean
+    public TopicExchange exchange() {
+        return new TopicExchange(EXCHANGE_PROYECTOS);
+    }
 
-  @Bean
-  public Binding binding(Queue queue, TopicExchange exchange) {
-    return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY_PROYECTOS);
-  }
+    @Bean
+    public TopicExchange exchangeUsuarios() {
+        return new TopicExchange(EXCHANGE_USUARIOS);
+    }
 
-  @Bean
-  public Binding bindingUsuarios(Queue queueUsuarios, TopicExchange exchangeUsuarios) {
-    return BindingBuilder.bind(queueUsuarios).to(exchangeUsuarios).with(ROUTING_KEY_USUARIOS);
-  }
+    @Bean
+    public Binding binding(Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue)
+                .to(exchange)
+                .with(ROUTING_KEY_PROYECTOS);
+    }
 
-  @Bean
-  public Jackson2JsonMessageConverter messageConverter() {
-    return new Jackson2JsonMessageConverter();
-  }
+    @Bean
+    public Binding bindingUsuarios(
+            Queue queueUsuarios,
+            TopicExchange exchangeUsuarios
+    ) {
+        return BindingBuilder.bind(queueUsuarios)
+                .to(exchangeUsuarios)
+                .with(ROUTING_KEY_USUARIOS);
+    }
 
-  @Bean
-  public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
-    return new RabbitAdmin(connectionFactory);
-  }
+    @Bean
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
 
-  @Bean
-  public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-    RabbitTemplate template = new RabbitTemplate(connectionFactory);
-    template.setMessageConverter(messageConverter());
-    return template;
-  }
+    @Bean
+    @Profile("!test")
+    public RabbitAdmin rabbitAdmin(
+            ConnectionFactory connectionFactory
+    ) {
+        return new RabbitAdmin(connectionFactory);
+    }
+
+    @Bean
+    @Profile("!test")
+    public RabbitTemplate rabbitTemplate(
+            ConnectionFactory connectionFactory
+    ) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(messageConverter());
+        return template;
+    }
 }

@@ -62,11 +62,6 @@ public class ProyectoService {
         repository.deleteById(id);
     }
 
-    /**
-     * MÉTODO OPTIMIZADO Y CORREGIDO DEFINITIVO
-     * Cuenta las tareas basándose en el estado real de la base de datos ("FINALIZADO").
-     * Utiliza IgnoreCase para prevenir fallos por diferencias de escritura.
-     */
     public List<ResumenProyecto> obtenerResumenTareas() {
         List<Proyecto> proyectos = repository.findAll();
 
@@ -75,7 +70,6 @@ public class ProyectoService {
                     p.getIdProyecto()
             );
 
-            // CORRECCIÓN DEFINITIVA: Buscamos "FINALIZADO" ignorando mayúsculas/minúsculas
             long completadas = tareaRepository.countByProyecto_IdProyectoAndEstadoIgnoreCase(
                     p.getIdProyecto(),
                     "FINALIZADO"

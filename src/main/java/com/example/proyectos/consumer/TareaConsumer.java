@@ -5,7 +5,7 @@ import java.util.Map;
 
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 
@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 
 @Component
-
+@Profile("!test")
 @RequiredArgsConstructor
 
 public class TareaConsumer {

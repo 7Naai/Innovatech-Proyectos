@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -147,16 +148,15 @@ public class TestProyectoService {
         when(tareaRepository.countByProyecto_IdProyecto(1L))
                 .thenReturn(10L);
 
-        when(tareaRepository.countByProyecto_IdProyectoAndEstado(
+        when(tareaRepository.countByProyecto_IdProyectoAndEstadoIgnoreCase(
                 1L,
-                "COMPLETADA"
+                "FINALIZADO"
         )).thenReturn(7L);
 
         List<ResumenProyecto> resultado =
                 service.obtenerResumenTareas();
 
         assertNotNull(resultado);
-
         assertEquals(1, resultado.size());
 
         ResumenProyecto resumen = resultado.get(0);
@@ -171,9 +171,9 @@ public class TestProyectoService {
                 .countByProyecto_IdProyecto(1L);
 
         verify(tareaRepository)
-                .countByProyecto_IdProyectoAndEstado(
+                .countByProyecto_IdProyectoAndEstadoIgnoreCase(
                         1L,
-                        "COMPLETADA"
+                        "FINALIZADO"
                 );
     }
 }
